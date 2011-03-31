@@ -1,0 +1,5 @@
+remotehost = "127.0.0.1"
+remoteport = 6667
+remotepass = "secret"
+remoteserverdesc = "<JStoker> oh god."
+protocolname = "modules.protocol.ts6" #choices: ts6
