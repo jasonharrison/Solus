@@ -2,9 +2,8 @@ X = done, ? = Needs discussion, / = in progress, nothing = not started.
 
 X = done, ? = Needs discussion, / = in progress.
 
-[X] End of burst detection (TS6)
 [?] Write config parser (ConfigParser?)
-    [ ] Reload from IRC, without errors in config causing services to crash.
+[ ] Reload from IRC, without errors in config causing services to crash.
 [ ] Uplink
     [/] Write socket code to use asyncore, or some other similar event based library.
     [?] Multiple uplink support
@@ -17,8 +16,9 @@ X = done, ? = Needs discussion, / = in progress.
     [ ] Reloading modules through IRC
     [/] Multiple protocols (See below)
 [/] Multiple protocol support
-	Percent done/Protocols/Maintainers:
-	[1%] bikcmp/TS6
+	Protocols/Maintainers/Tasks:
+		bikcmp/TS6:
+			[/] End of burst detection (TS6)
 [ ] Event system
     [ ] Once
     [ ] Recurring
