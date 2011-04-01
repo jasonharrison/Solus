@@ -46,19 +46,31 @@ def handle_data(self,data): #start parsing
 		else: #not an oper
 			self.uidstore[uid] = {'nick': nick, 'user': user, 'host': host, 'realhost': realhost, 'account': account, 'oper': False, 'modes': modes, 'channels': [], 'gecos': gecos, 'ip': ip, 'server': server}
 		self.serverstore[server]['users'].append(uid)
+	elif split[1] == "QUIT":
+		uid = split[0].strip(":")
+		del self.nickstore[self.uidstore[uid]['nick']]
+		self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
+		del self.uidstore[uid]
+	elif split[0] == "SQUIT":
+		sid = split[1]
+		for uid in self.serverstore[sid]['users']:
+			self.log("network","squit: removing client "+uid+" due to "+self.serverstore[sid]['name']+" splitting.")
+			self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
+			del self.uidstore[uid]
+		del self.serverstore[sid]
 	elif split[1] == "SID": #add uplink to serverstore
 	#:42A SID s1.FOSSnet.info 3 11A :Atlanta, Georgia, USA
 		#time.sleep(5)
 		serverSID = split[4]
-		desc = ' '.join(str(split[5:]).strip(str(split[5:])[0]))
+		desc = ''.join(str(split[5:]).strip(str(split[5:])[0]))
 		servername = split[2]
-		self.serverstore[serverSID] = {"servername": servername, "SID": serverSID, "desc": desc, "users": []}
+		self.serverstore[serverSID] = {"name": servername, "SID": serverSID, "desc": desc, "users": []}
 	#an ugly hack lies ahead.
 	elif split[0] == "PASS": #getting local sid, ugly hack.
 			self.uplinkSID = split[4].strip(":")
 	elif split[0] == "SERVER":
 		self.uplinkservername = split[1]
-		self.uplinkserverdesc = ' '.join(split[3:]).strip(":")
+		self.uplinkserverdesc = ''.join(split[3:]).strip(":")
 		self.serverstore[self.uplinkSID] = {"servername": self.uplinkservername, "SID": self.uplinkSID, "serverdesc": self.uplinkserverdesc, "users": []}
 	elif split[1] == "PRIVMSG":
 		messagedata = re.search("^:([0-9A-Z]{9}) PRIVMSG (#[^ ]*) :(.*)$",data).groups()

@@ -100,11 +100,11 @@ class asynchat_bot(asynchat.async_chat):
 		parv = message.split(" ")
 		#WARNING: d-exec is ONLY FOR DEBUGGING AND CHECKING VARIABLES FOR DEVELOPMENT PURPOSES.  *DO NOT* use this in production.
 		if "d-exec" in message:
-			#try:
+			try:
 				query = message.split('d-exec ')[1]
 				self.log("info",str(eval(query)))
-			#except Exception,e:
-			#	self.log("info","error: "+str(e))
+			except Exception,e:
+				self.log("info","error: "+str(e))
 		for modname,module in self.modules.items():
 			if hasattr(module, "onPrivmsg"):
 				module.onPrivmsg(self,user,target,parc,parv,message)
