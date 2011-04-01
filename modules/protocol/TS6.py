@@ -75,7 +75,7 @@ def handle_data(self,data): #start parsing
 	elif split[1] == "PRIVMSG":
 		messagedata = re.search("^:([0-9A-Z]{9}) PRIVMSG (#[^ ]*) :(.*)$",data).groups()
 		uid = messagedata[0]
-		target = messagedata[1]
+		target = split[2]
 		message = messagedata[2]
 		user = self.uidstore[uid]
 		self.getPrivmsg(user,target,message)
