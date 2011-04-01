@@ -1,4 +1,4 @@
-import time
+import time,re
 
 def modinit(self):
 	self.uidstore = {}
@@ -13,14 +13,14 @@ def handle_connect(self,config):
 	self.sendLine("PASS "+str(config.remotepass)+" TS 6 "+str(config.sid))
 	self.sendLine("CAPAB :QS EX IE KLN UNKLN ENCAP TB SERVICES EUID EOPMOD")
 	self.sendLine("SERVER "+str(config.servername)+" 1 :"+str(config.serverdesc))
-def handle_data(self,data):
+def handle_data(self,data): #start parsing
 	split = data.split(" ")
 	if data[:4] == 'PING':
 		if self.firstping == 1:
 			self.firstping = 0
 			endts = time.time()
-			self.sendLine("WALLOPS :Synced with network in "+str(float(float(endts)-(float(self.startts))))[:4]+" seconds.")
-			x = self.createClient("test","test","unknown","test")
+			#self.sendLine("WALLOPS :Synced with network in "+str(float(float(endts)-(float(self.startts))))[:4]+" seconds.")
+			self.createClient("debugging","debugging","debugging","debugging") #for debugging with d-exec
 		self.sendLine('PONG %s' % data[5:])
 	elif split[1] == "EUID":
 		modes = split[5].strip("+").strip("-")
@@ -34,6 +34,8 @@ def handle_data(self,data):
 		else:
 			realhost = split[10]
 		ip = split[8]
+		if ip == "0":
+			ip = ""
 		uid = split[9]
 		account = split[11]
 		if account == "*":
@@ -58,6 +60,15 @@ def handle_data(self,data):
 		self.uplinkservername = split[1]
 		self.uplinkserverdesc = ' '.join(split[3:]).strip(":")
 		self.serverstore[self.uplinkSID] = {"servername": self.uplinkservername, "SID": self.uplinkSID, "serverdesc": self.uplinkserverdesc, "users": []}
+	elif split[1] == "PRIVMSG":
+		messagedata = re.search("^:([0-9A-Z]{9}) PRIVMSG (#[^ ]*) :(.*)$",data).groups()
+		uid = messagedata[0]
+		target = messagedata[1]
+		message = messagedata[2]
+		user = self.uidstore[uid]
+		self.getPrivmsg(user,target,message)
+#end parsing
+#start functions
 def sendNotice(self,sender,target,data):
 	if sender == "server":
 		self.sendLine("NOTICE "+target+" :"+data)
@@ -78,6 +89,12 @@ def createClient(self,cnick,cuser,chost,cgecos):
 	self.joinChannel(cuid,self.reportchannel)
 	self.uidstore[cuid]['channels'].append(self.reportchannel)
 	self.sendLine("MODE "+self.reportchannel+" +o "+cuid)
+	return cuid
+def destroyClient(self,cuid,reason):
+	self.sendLine(":"+str(cuid)+" QUIT :"+reason)
+	self.myclients.remove(cuid)
+	del self.uidstore[cuid]
 def joinChannel(self,cuid,channel):
 	self.sendLine(':'+cuid+' JOIN '+str(time.time())+' '+channel+' +')
 	self.uidstore[cuid]['channels'].append(channel)
+#end functions

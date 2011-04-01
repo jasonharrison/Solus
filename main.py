@@ -88,7 +88,9 @@ class asynchat_bot(asynchat.async_chat):
 		version = self.version.replace("(servername)",self.servername).replace("(protocol)",self.protocolname)
 		return version
 	def createClient(self,cnick,cuser,chost,cgecos):
-		self.protocol.createClient(self,cnick,cuser,chost,cgecos)
+		return self.protocol.createClient(self,cnick,cuser,chost,cgecos)
+	def destroyClient(self,client,reason):
+		self.protocol.destroyClient(self,client,reason)
 	def joinChannel(self,client,channel):
 		self.protocol.joinChannel(self,client,channel)
 	#end of api
@@ -109,6 +111,12 @@ class asynchat_bot(asynchat.async_chat):
 	#end hooks
 	def handle_connect(self):
 		self.protocol.handle_connect(self,config)
+		f = open("modules.conf","r")
+		for line in f.read().split("\n"):
+			if "#" in line or line == "":
+				pass
+			else:
+				self.load(line)
 		self.startts = time.time()
 	def handle_error(self):
 		raise
