@@ -80,7 +80,9 @@ class asynchat_bot(asynchat.async_chat):
 	def getPrivmsg(self,user,target,message):
 		parc = message.count(" ")
 		parv = message.split(" ")
-		for 
+		for modname,module in self.modules.items():
+			if hasattr(module, "onPrivmsg"):
+				module.onPrivmsg(self,user,target,parc,parv,message)
 	#end hooks
 	def handle_connect(self):
 		self.protocol.handle_connect(self,config)
