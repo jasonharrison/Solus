@@ -26,7 +26,6 @@ class asynchat_bot(asynchat.async_chat):
 		self.mysid = config.sid
 		self.debugmode = debugmode
 		self.firstping = 1
-		self.myclients = []
 		try:
 			__import__("modules.protocol."+config.protocolname)
 			self.protocol = sys.modules[config.protocolname]
