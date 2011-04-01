@@ -13,27 +13,52 @@ class asynchat_bot(asynchat.async_chat):
 		self.remote=(host,port)
 		self.connect(self.remote)
 		#set vars
+		#stuff to be set on a rehash
 		self.remotehost = config.remotehost
 		self.remoteport = config.remoteport
 		self.protocolname = config.protocolname
+		self.loglevel = config.loglevel
+		self.reportchannel = config.reportchannel
+		#end of stuff to be set on a rehash
 		self.debugmode = debugmode
-		self.startts = time.time()
 		self.firstping = 1
+		self.myclients = []
 		try:
 			__import__(config.protocolname)
 			self.protocol = sys.modules[config.protocolname]
-			print str(self.protocol)
+			self.protocol.modinit(self)
 		except ImportError:
 			print("Error: protocol \""+config.protocolname+"\" does not exist.")
 			exit()
-	#small api
+	#api
 	def sendLine(self,data):
 		if self.debugmode == 1:
 			print("{"+str(time.time())+"} Send: "+data)
 		self.push(data+"\r\n")
+	def load(self,modname):
+		module = __import__("modules.services."+modname)
+		module.modinit(self)
+		return module
+	def sendNotice(self,sender,target,message):
+		if self.myclients == [] or sender == "server":
+			self.protocol.sendNotice(self,"server",target,message)
+		else:
+			self.protocol.sendNotice(self,sender,target,message)
+	def sendNotice(self,sender,target,message):
+		if self.myclients == [] or sender == "server":
+			self.protocol.sendPrivmsg(self,"server",target,message)
+		else:
+			self.protocol.sendPrivmsg(self,sender,target,message)
+	def log(self,level,data):
+		if level.lower() in self.loglevel.lower():
+			if self.myclients == []:
+				self.sendNotice("server",self.reportchannel,data)
+			else:
+				self.sendNotice(self.myclients[0],self.reportchannel,data)
 	#end of api
 	def handle_connect(self):
 		self.protocol.handle_connect(self,config)
+		self.startts = time.time()
 	def handle_error(self):
 		raise
 	def get_data(self):
