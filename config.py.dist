@@ -1,7 +1,7 @@
 #my settings:
 servername = "ray."
 serverdesc = "<JStoker> oh god."
-protocolname = "modules.protocol.ts6" #choices: ts6
+protocolname = "TS6" #choices: TS6 - CASE SENSITIVE.
 #for protocols that use sid's:
 sid = "58X"
 #remote settings:

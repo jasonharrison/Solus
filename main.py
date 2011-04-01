@@ -13,6 +13,8 @@ class asynchat_bot(asynchat.async_chat):
 		self.remote=(host,port)
 		self.connect(self.remote)
 		#set vars
+		self.versionnumber = 0.01
+		self.version = "Solus "+str(self.versionnumber)+". (servername) [(protocol)]"
 		#stuff to be set on a rehash
 		self.remotehost = config.remotehost
 		self.remoteport = config.remoteport
@@ -20,11 +22,12 @@ class asynchat_bot(asynchat.async_chat):
 		self.loglevel = config.loglevel
 		self.reportchannel = config.reportchannel
 		#end of stuff to be set on a rehash
+		self.servername = config.servername
 		self.debugmode = debugmode
 		self.firstping = 1
 		self.myclients = []
 		try:
-			__import__(config.protocolname)
+			__import__("modules.protocol."+config.protocolname)
 			self.protocol = sys.modules[config.protocolname]
 			self.protocol.modinit(self)
 		except ImportError:
@@ -55,6 +58,9 @@ class asynchat_bot(asynchat.async_chat):
 				self.sendNotice("server",self.reportchannel,data)
 			else:
 				self.sendNotice(self.myclients[0],self.reportchannel,data)
+	def getVersion(self):
+		version = self.version.replace("(servername)",self.servername).replace("(protocol)",self.protocolname)
+		return version
 	#end of api
 	def handle_connect(self):
 		self.protocol.handle_connect(self,config)
