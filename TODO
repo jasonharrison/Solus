@@ -1,15 +1,13 @@
 X = done, ? = Needs discussion, / = in progress, nothing = not started.
 
-X = done, ? = Needs discussion, / = in progress.
-
 [?] Write config parser (ConfigParser?)
 [ ] Reload from IRC, without errors in config causing services to crash.
-[ ] Uplink
-    [/] Write socket code to use asyncore, or some other similar event based library.
+[/] Uplink
+    [X] Write socket code to use asyncore, or some other similar event based library.
     [?] Multiple uplink support
     [?] SSL?
-    [?] IPv6
-[/] Keep user data in a dict or sqlite database (:memory:?) (DICT used.)
+    [X] IPv6
+[X] Keep user data in a dict or sqlite database (:memory:?) (DICT used.)
 [/] Easy to use/rich API
 [X] Extremely modular base
     [ ] Hooks?
@@ -18,7 +16,12 @@ X = done, ? = Needs discussion, / = in progress.
 [/] Multiple protocol support
 	Protocols/Maintainers/Tasks:
 		bikcmp/TS6:
-			[/] End of burst detection (TS6)
+			[X] End of burst detection
+			[X] Rezzing clients
+			[ ] Deleting clients on quits
+			[ ] SJOIN/JOIN handing and chanstore{}
+			[ ] netsplit/netjoins (adding/removing users)
+			[?] netsplit/netjoins (adding/removing channels)
 [ ] Event system
     [ ] Once
     [ ] Recurring
