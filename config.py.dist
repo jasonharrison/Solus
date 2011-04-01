@@ -2,6 +2,8 @@
 servername = "ray."
 serverdesc = "<JStoker> oh god."
 protocolname = "TS6" #choices: TS6 - CASE SENSITIVE.
+loglevel = "info verbose network" #seperate by spaces, options:  network, info, commands, error, verbose
+reportchannel = "#services"
 #for protocols that use sid's:
 sid = "58X"
 #remote settings:
