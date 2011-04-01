@@ -15,6 +15,7 @@ class asynchat_bot(asynchat.async_chat):
 		#set vars
 		self.versionnumber = 0.01
 		self.version = "Solus "+str(self.versionnumber)+". (servername) [(protocol)]"
+		self.modules = {}
 		#stuff to be set on a rehash
 		self.remotehost = config.remotehost
 		self.remoteport = config.remoteport
@@ -38,10 +39,19 @@ class asynchat_bot(asynchat.async_chat):
 		if self.debugmode == 1:
 			print("{"+str(time.time())+"} Send: "+data)
 		self.push(data+"\r\n")
+	#def load(self,modtoload):
+	#	modname = "modules.services."+modtoload
+	#	self.m = __import__(modname)
+	#	module.modinit(self)
+	#	return module
+	#altara's load() and unload()
 	def load(self,modname):
-		module = __import__("modules.services."+modname)
-		module.modinit(self)
-		return module
+		modname = "modules.services."+modname
+		self.modules[modname] = __import__(modname)
+		return self.modules[modname]
+	def unload(self,modname):
+		self.modules[modname].moddeinit(self)
+		del self.modules[modname]
 	def sendNotice(self,sender,target,message):
 		if self.myclients == [] or sender == "server":
 			self.protocol.sendNotice(self,"server",target,message)
@@ -66,6 +76,12 @@ class asynchat_bot(asynchat.async_chat):
 	def joinChannel(self,client,channel):
 		self.protocol.joinChannel(self,client,channel)
 	#end of api
+	#start hooks
+	def getPrivmsg(self,user,target,message):
+		parc = message.count(" ")
+		parv = message.split(" ")
+		f
+	#end hooks
 	def handle_connect(self):
 		self.protocol.handle_connect(self,config)
 		self.startts = time.time()
