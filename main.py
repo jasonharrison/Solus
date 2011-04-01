@@ -57,7 +57,7 @@ class asynchat_bot(asynchat.async_chat):
 			self.protocol.sendNotice(self,"server",target,message)
 		else:
 			self.protocol.sendNotice(self,sender,target,message)
-	def sendNotice(self,sender,target,message):
+	def sendPrivmsg(self,sender,target,message):
 		if self.myclients == [] or sender == "server":
 			self.protocol.sendPrivmsg(self,"server",target,message)
 		else:
@@ -80,7 +80,7 @@ class asynchat_bot(asynchat.async_chat):
 	def getPrivmsg(self,user,target,message):
 		parc = message.count(" ")
 		parv = message.split(" ")
-		f
+		for 
 	#end hooks
 	def handle_connect(self):
 		self.protocol.handle_connect(self,config)
