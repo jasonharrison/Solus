@@ -3,3 +3,5 @@ remoteport = 6667
 remotepass = "secret"
 remoteserverdesc = "<JStoker> oh god."
 protocolname = "modules.protocol.ts6" #choices: ts6
+#for protocols that use sid's:
+sid = "010"
