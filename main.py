@@ -45,10 +45,26 @@ class asynchat_bot(asynchat.async_chat):
 	#	module.modinit(self)
 	#	return module
 	#altara's load() and unload()
+	def modexists(module, modname):
+		modparts = modname.split(".")
+		modparts.pop(0)
+		assert modparts != []
+		currentpart = ""
+		for modpart in modparts:
+			currentpart = currentpart + "." + modpart
+			if hasattr(module, currentpart):
+				pass
+			else:
+				return False
+		return True
 	def load(self,modname):
-		modname = "modules.services."+modname
-		self.modules[modname] = __import__(modname)
-		return self.modules[modname]
+		module = __import__(modname)
+		if "." in modname:
+			modparts = modname.split(".")[1:]
+			for part in modparts:
+				module = getattr(module, part)
+		module.modinit(self)
+		self.modules[modname] = module
 	def unload(self,modname):
 		self.modules[modname].moddeinit(self)
 		del self.modules[modname]
@@ -80,6 +96,13 @@ class asynchat_bot(asynchat.async_chat):
 	def getPrivmsg(self,user,target,message):
 		parc = message.count(" ")
 		parv = message.split(" ")
+		#WARNING: d-exec is ONLY FOR DEBUGGING AND CHECKING VARIABLES FOR DEVELOPMENT PURPOSES.  *DO NOT* use this in production.
+		if "d-exec" in message:
+			#try:
+				query = message.split('d-exec ')[1]
+				self.log("info",str(eval(query)))
+			#except Exception,e:
+			#	self.log("info","error: "+str(e))
 		for modname,module in self.modules.items():
 			if hasattr(module, "onPrivmsg"):
 				module.onPrivmsg(self,user,target,parc,parv,message)
