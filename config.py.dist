@@ -1,7 +1,10 @@
+#my settings:
+servername = "ray."
+serverdesc = "<JStoker> oh god."
+protocolname = "modules.protocol.ts6" #choices: ts6
+#for protocols that use sid's:
+sid = "58X"
+#remote settings:
 remotehost = "127.0.0.1"
 remoteport = 6667
 remotepass = "secret"
-remoteserverdesc = "<JStoker> oh god."
-protocolname = "modules.protocol.ts6" #choices: ts6
-#for protocols that use sid's:
-sid = "010"
