@@ -28,7 +28,7 @@ class asynchat_bot(asynchat.async_chat):
 		self.firstping = 1
 		try:
 			__import__("modules.protocol."+config.protocolname)
-			self.protocol = sys.modules[config.protocolname]
+			self.protocol = sys.modules["modules.protocol."+config.protocolname]
 			self.protocol.modinit(self)
 		except ImportError:
 			print("Error: protocol \""+config.protocolname+"\" does not exist.")
@@ -61,6 +61,10 @@ class asynchat_bot(asynchat.async_chat):
 	def getVersion(self):
 		version = self.version.replace("(servername)",self.servername).replace("(protocol)",self.protocolname)
 		return version
+	def createClient(self,cnick,cuser,chost,cgecos):
+		self.protocol.createClient(self,cnick,cuser,chost,cgecos)
+	def joinChannel(self,client,channel):
+		self.protocol.joinChannel(self,client,channel)
 	#end of api
 	def handle_connect(self):
 		self.protocol.handle_connect(self,config)

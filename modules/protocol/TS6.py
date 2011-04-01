@@ -4,6 +4,8 @@ def modinit(self):
 	self.uidstore = {}
 	self.nickstore = {}
 	self.serverstore = {}
+	self.baseuid = 100000 #start adding numbers onto this uid to generate clients (self.baseuid+=1)
+	self.myclients = [] #uids of clients rezzed with createClient()
 def moddeinit(self):
 	pass
 def handle_connect(self,config):
@@ -18,6 +20,7 @@ def handle_data(self,data):
 			self.firstping = 0
 			endts = time.time()
 			self.sendLine("WALLOPS :Synced with network in "+str(float(float(endts)-(float(self.startts))))[:4]+" seconds.")
+			x = self.createClient("test","test","unknown","test")
 		self.sendLine('PONG %s' % data[5:])
 	elif split[1] == "EUID":
 		modes = split[5].strip("+").strip("-")
@@ -34,7 +37,7 @@ def handle_data(self,data):
 		uid = split[9]
 		account = split[11]
 		if account == "*":
-			account = "None"
+			account = ""
 		self.nickstore[nick] = {'uid': uid}
 		if "o" in modes: #oper!
 			self.uidstore[uid] = {'nick': nick, 'user': user, 'host': host, 'realhost': realhost, 'account': account, 'oper': True, 'modes': modes, 'channels': [], 'gecos': gecos, 'ip': ip, 'server': server}
@@ -65,3 +68,16 @@ def sendPrivmsg(self,sender,target,data):
 		self.sendLine("NOTICE "+target+" :"+data)
 	else:
 		self.sendLine(":"+sender+" PRIVMSG "+target+" :"+data)
+def createClient(self,cnick,cuser,chost,cgecos):
+	self.baseuid+=1
+	cuid = str(self.mysid)+str(self.baseuid)
+	modes = "+ioS"
+	self.sendLine(':'+str(self.mysid)+' EUID '+cnick+' 0 '+str(time.time())+' +'+modes+' '+cuser+' '+chost+' 0.0.0.0 '+cuid+' 0.0.0.0 0 :'+cgecos)
+	self.uidstore[cuid] = {'nick': cnick, 'user': cuser, 'host': chost, 'realhost': chost, 'account': "", 'oper': True, 'modes': modes, 'channels': [], 'gecos': cgecos, 'ip': "", 'server': self.mysid}
+	self.myclients.append(cuid)
+	self.joinChannel(cuid,self.reportchannel)
+	self.uidstore[cuid]['channels'].append(self.reportchannel)
+	self.sendLine("MODE "+self.reportchannel+" +o "+cuid)
+def joinChannel(self,cuid,channel):
+	self.sendLine(':'+cuid+' JOIN '+str(time.time())+' '+channel+' +')
+	self.uidstore[cuid]['channels'].append(channel)
