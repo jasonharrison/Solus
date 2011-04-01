@@ -95,7 +95,7 @@ def createClient(self,cnick,cuser,chost,cgecos):
 	self.baseuid+=1
 	cuid = str(self.mysid)+str(self.baseuid)
 	modes = "+ioS"
-	self.sendLine(':'+str(self.mysid)+' EUID '+cnick+' 0 '+str(time.time())+' +'+modes+' '+cuser+' '+chost+' 0.0.0.0 '+cuid+' 0.0.0.0 0 :'+cgecos)
+	self.sendLine(':'+str(self.mysid)+' EUID '+cnick+' 0 '+str(time.time())+' '+modes+' '+cuser+' '+chost+' 0.0.0.0 '+cuid+' 0.0.0.0 0 :'+cgecos)
 	self.uidstore[cuid] = {'nick': cnick, 'user': cuser, 'host': chost, 'realhost': chost, 'account': "", 'oper': True, 'modes': modes, 'channels': [], 'gecos': cgecos, 'ip': "", 'server': self.mysid}
 	self.myclients.append(cuid)
 	self.joinChannel(cuid,self.reportchannel)
