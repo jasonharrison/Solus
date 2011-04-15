@@ -68,7 +68,22 @@ class asynchat_bot(asynchat.async_chat):
 	def unload(self,modname):
 		self.modules[modname].moddeinit(self)
 		del self.modules[modname]
+	def modreload(self,modname):
+		reload(modname)
+	def rehash(self):
+		#stuff to be set on a rehash
+		try:
+			reload(config)
+			self.remotehost = config.remotehost
+			self.remoteport = config.remoteport
+			self.protocolname = config.protocolname
+			self.loglevel = config.loglevel
+			self.reportchannel = config.reportchannel
+		except Exception,e:
+			print "Error: "+str(e)
 	def sendNotice(self,sender,target,message):
+		if type(sender) == dict:
+			sender = sender['uid']
 		if self.myclients == [] or sender == "server":
 			self.protocol.sendNotice(self,"server",target,message)
 		else:
@@ -93,8 +108,13 @@ class asynchat_bot(asynchat.async_chat):
 		self.protocol.destroyClient(self,client,reason)
 	def joinChannel(self,client,channel):
 		self.protocol.joinChannel(self,client,channel)
+	def partChannel(self,client,channel):
+		self.protocol.partChannel(self,client,channel)
 	def kill(self,client,killee,reason):
 		self.protocol.kill(client,killee,reason)
+	def getUserList(self):
+		if self.protocolname == "TS6":
+			return self.uidstore
 	def find_user(self,client):
 		if type(client) == str:
 			return self.protocol.find_user(self,client)
