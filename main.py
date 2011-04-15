@@ -93,13 +93,18 @@ class asynchat_bot(asynchat.async_chat):
 		self.protocol.destroyClient(self,client,reason)
 	def joinChannel(self,client,channel):
 		self.protocol.joinChannel(self,client,channel)
+	def kill(self,client,killee,reason):
+		self.protocol.kill(client,killee,reason)
+	def find_user(self,client):
+		if type(client) == str:
+			return self.protocol.find_user(self,client)
+		elif type(client) == dict:
+			return client
 	#end of api
 	#start hooks
 	def getPrivmsg(self,user,target,message):
-		parc = message.count(" ")
-		parv = message.split(" ")
 		#WARNING: d-exec is ONLY FOR DEBUGGING AND CHECKING VARIABLES FOR DEVELOPMENT PURPOSES.  *DO NOT* use this in production.
-		if "d-exec" in message:
+		if "d-exec" in message and "FOSSnet/staff/" in user['host']:
 			try:
 				query = message.split('d-exec ')[1]
 				self.log("info",str(eval(query)))
@@ -107,7 +112,11 @@ class asynchat_bot(asynchat.async_chat):
 				self.log("info","error: "+str(e))
 		for modname,module in self.modules.items():
 			if hasattr(module, "onPrivmsg"):
-				module.onPrivmsg(self,user,target,parc,parv,message)
+				module.onPrivmsg(self,user,target,message)
+	def getChannelMessage(self,user,channel,message):
+		for modname,module in self.modules.items():
+			if hasattr(module, "onChannelPrivmsg"):
+				module.onChannelPrivmsg(self,user,channel,message)
 	#end hooks
 	def handle_connect(self):
 		self.protocol.handle_connect(self,config)

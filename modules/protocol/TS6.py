@@ -1,4 +1,4 @@
-import time,re
+import time,re,socket
 
 def modinit(self):
 	self.uidstore = {}
@@ -13,14 +13,16 @@ def handle_connect(self,config):
 	self.sendLine("PASS "+str(config.remotepass)+" TS 6 "+str(config.sid))
 	self.sendLine("CAPAB :QS EX IE KLN UNKLN ENCAP TB SERVICES EUID EOPMOD")
 	self.sendLine("SERVER "+str(config.servername)+" 1 :"+str(config.serverdesc))
+	self.mainc = self.createClient("egon","egon","egon","egon") #for debugging with d-exec
+	#self.sendLine("KICK #services CaptainTrek :You are not authorized to be in channel (#services) handle_chanburst(burst)")
 def handle_data(self,data): #start parsing
 	split = data.split(" ")
 	if data[:4] == 'PING':
 		if self.firstping == 1:
 			self.firstping = 0
 			endts = time.time()
-			#self.sendLine("WALLOPS :Synced with network in "+str(float(float(endts)-(float(self.startts))))[:4]+" seconds.")
-			self.createClient("debugging","debugging","debugging","debugging") #for debugging with d-exec
+			self.sendLine("WALLOPS :Synced with network in "+str(float(float(endts)-(float(self.startts))))[:4]+" seconds.")
+			#self.mainc = self.createClient("egon","egon","egon","egon") #for debugging with d-exec
 		self.sendLine('PONG %s' % data[5:])
 	elif split[1] == "EUID":
 		modes = split[5].strip("+").strip("-")
@@ -51,6 +53,14 @@ def handle_data(self,data): #start parsing
 		del self.nickstore[self.uidstore[uid]['nick']]
 		self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
 		del self.uidstore[uid]
+	#:02KAAACJL NICK jg :1302376060
+	elif split[1] == "NICK":
+		uid = split[0].strip(":")
+		newnick = split[2]
+		oldnick = self.uidstore[uid]['nick']
+		del self.nickstore[oldnick]
+		self.nickstore[newnick] = {'uid': uid}
+		self.uidstore[uid]['nick'] = newnick
 	elif split[0] == "SQUIT":
 		sid = split[1]
 		for uid in self.serverstore[sid]['users']:
@@ -73,14 +83,20 @@ def handle_data(self,data): #start parsing
 		self.uplinkserverdesc = ''.join(split[3:]).strip(":")
 		self.serverstore[self.uplinkSID] = {"servername": self.uplinkservername, "SID": self.uplinkSID, "serverdesc": self.uplinkserverdesc, "users": []}
 	elif split[1] == "PRIVMSG":
-		messagedata = re.search("^:([0-9A-Z]{9}) PRIVMSG (#[^ ]*) :(.*)$",data).groups()
+		messagedata = re.search("^:([0-9A-Z]{9}) PRIVMSG ([^ ]*) :(.*)$",data).groups()
 		uid = messagedata[0]
 		target = split[2]
 		message = messagedata[2]
 		user = self.uidstore[uid]
+		if "#" in target: #channel message
+			self.getChannelMessage(user,target,message)
+		else: #client sending a message to a pseudoclient
+			target = self.uidstore[target]
 		self.getPrivmsg(user,target,message)
 #end parsing
 #start functions
+def find_user(self,uid):
+	return self.uidstore[uid]
 def sendNotice(self,sender,target,data):
 	if sender == "server":
 		self.sendLine("NOTICE "+target+" :"+data)
