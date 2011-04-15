@@ -14,7 +14,6 @@ def handle_connect(self,config):
 	self.sendLine("CAPAB :QS EX IE KLN UNKLN ENCAP TB SERVICES EUID EOPMOD")
 	self.sendLine("SERVER "+str(config.servername)+" 1 :"+str(config.serverdesc))
 	self.mainc = self.createClient("egon","egon","egon","egon") #for debugging with d-exec
-	#self.sendLine("KICK #services CaptainTrek :You are not authorized to be in channel (#services) handle_chanburst(burst)")
 def handle_data(self,data): #start parsing
 	split = data.split(" ")
 	if data[:4] == 'PING':
@@ -44,9 +43,9 @@ def handle_data(self,data): #start parsing
 			account = ""
 		self.nickstore[nick] = {'uid': uid}
 		if "o" in modes: #oper!
-			self.uidstore[uid] = {'nick': nick, 'user': user, 'host': host, 'realhost': realhost, 'account': account, 'oper': True, 'modes': modes, 'channels': [], 'gecos': gecos, 'ip': ip, 'server': server}
+			self.uidstore[uid] = {'nick': nick, 'user': user, 'host': host, 'realhost': realhost, 'account': account, 'oper': True, 'modes': modes, 'channels': [], 'gecos': gecos, 'ip': ip, 'server': server, 'uid': uid}
 		else: #not an oper
-			self.uidstore[uid] = {'nick': nick, 'user': user, 'host': host, 'realhost': realhost, 'account': account, 'oper': False, 'modes': modes, 'channels': [], 'gecos': gecos, 'ip': ip, 'server': server}
+			self.uidstore[uid] = {'nick': nick, 'user': user, 'host': host, 'realhost': realhost, 'account': account, 'oper': False, 'modes': modes, 'channels': [], 'gecos': gecos, 'ip': ip, 'server': server, 'uid': uid}
 		self.serverstore[server]['users'].append(uid)
 	elif split[1] == "QUIT":
 		uid = split[0].strip(":")
@@ -112,17 +111,21 @@ def createClient(self,cnick,cuser,chost,cgecos):
 	cuid = str(self.mysid)+str(self.baseuid)
 	modes = "+ioS"
 	self.sendLine(':'+str(self.mysid)+' EUID '+cnick+' 0 '+str(time.time())+' '+modes+' '+cuser+' '+chost+' 0.0.0.0 '+cuid+' 0.0.0.0 0 :'+cgecos)
-	self.uidstore[cuid] = {'nick': cnick, 'user': cuser, 'host': chost, 'realhost': chost, 'account': "", 'oper': True, 'modes': modes, 'channels': [], 'gecos': cgecos, 'ip': "", 'server': self.mysid}
+	self.uidstore[cuid] = {'nick': cnick, 'user': cuser, 'host': chost, 'realhost': chost, 'account': "", 'oper': True, 'modes': modes, 'channels': [], 'gecos': cgecos, 'ip': "", 'server': self.mysid, 'uid': cuid}
 	self.myclients.append(cuid)
 	self.joinChannel(cuid,self.reportchannel)
-	self.uidstore[cuid]['channels'].append(self.reportchannel)
 	self.sendLine("MODE "+self.reportchannel+" +o "+cuid)
-	return cuid
+	return self.uidstore[cuid]
 def destroyClient(self,cuid,reason):
 	self.sendLine(":"+str(cuid)+" QUIT :"+reason)
 	self.myclients.remove(cuid)
 	del self.uidstore[cuid]
 def joinChannel(self,cuid,channel):
-	self.sendLine(':'+cuid+' JOIN '+str(time.time())+' '+channel+' +')
-	self.uidstore[cuid]['channels'].append(channel)
+	if channel not in self.uidstore[cuid]['channels']:
+		self.sendLine(':'+cuid+' JOIN '+str(time.time())+' '+channel+' +')
+		self.uidstore[cuid]['channels'].append(channel)
+def partChannel(self,cuid,channel):
+	if channel in self.uidstore[cuid]['channels']:
+		self.sendLine(':'+cuid+' PART '+channel)
+		self.uidstore[cuid]['channels'].remove(channel)
 #end functions
