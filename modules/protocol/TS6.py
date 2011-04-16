@@ -52,6 +52,12 @@ def handle_data(self,data): #start parsing
 		del self.nickstore[self.uidstore[uid]['nick']]
 		self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
 		del self.uidstore[uid]
+	#{1302921049.54} Recv: :05CAAAISU KILL 02KAAABD0 :s4.FOSSnet.info!FOSSnet/staff/bikcmp!jason!bikcmp (<No reason given>)
+	elif split[1] == "KILL":
+		uid = split[2]
+		del self.nickstore[self.uidstore[uid]['nick']]
+		self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
+		del self.uidstore[uid]
 	#:02KAAACJL NICK jg :1302376060
 	elif split[1] == "NICK":
 		uid = split[0].strip(":")
