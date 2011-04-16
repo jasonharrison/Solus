@@ -129,13 +129,21 @@ def add_kline(self,kliner,time,user,host,reason):
 def find_user(self,uid):
 	return self.uidstore[uid]
 def sendNotice(self,sender,target,data):
-	if sender == "server":
-		self.sendLine("NOTICE "+target+" :"+data)
+	if type(sender) == dict:
+		sender = sender['uid']
+	if type(target) == dict:
+		target = target['uid']
+	if "#" in target:
+		self.sendLine(":"+sender+" NOTICE "+target+" :"+data)
 	else:
 		self.sendLine(":"+sender+" NOTICE "+target+" :"+data)
 def sendPrivmsg(self,sender,target,data):
-	if sender == "server":
-		self.sendLine("NOTICE "+target+" :"+data)
+	if type(sender) == dict:
+		sender = sender['uid']
+	if type(target) == dict:
+		target = target['uid']
+	if "#" in target:
+		self.sendLine(":"+sender+" PRIVMSG "+target+" :"+data)
 	else:
 		self.sendLine(":"+sender+" PRIVMSG "+target+" :"+data)
 def createClient(self,cnick,cuser,chost,cgecos):

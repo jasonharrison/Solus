@@ -85,17 +85,9 @@ class asynchat_bot(asynchat.async_chat):
 		except Exception,e:
 			print "Error: "+str(e)
 	def sendNotice(self,sender,target,message):
-		if type(sender) == dict:
-			sender = sender['uid']
-		if self.myclients == [] or sender == "server":
-			self.protocol.sendNotice(self,"server",target,message)
-		else:
-			self.protocol.sendNotice(self,sender,target,message)
+		self.protocol.sendNotice(self,sender,target,message)
 	def sendPrivmsg(self,sender,target,message):
-		if self.myclients == [] or sender == "server":
-			self.protocol.sendPrivmsg(self,"server",target,message)
-		else:
-			self.protocol.sendPrivmsg(self,sender,target,message)
+		self.protocol.sendPrivmsg(self,sender,target,message)
 	def log(self,level,data):
 		if level.lower() in self.loglevel.lower():
 			if self.myclients == []:
