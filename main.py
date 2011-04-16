@@ -117,7 +117,7 @@ class asynchat_bot(asynchat.async_chat):
 		self.protocol.kill(client,killee,reason)
 	def getUserList(self):
 		if self.protocolname == "TS6":
-			return self.uidstore
+			return self.uidstore.items()
 	def find_user(self,client):
 		if type(client) == str:
 			return self.protocol.find_user(self,client)
@@ -125,6 +125,11 @@ class asynchat_bot(asynchat.async_chat):
 			return client
 	def kill_user(self,killer,killed,reason):
 		self.protocol.kill_user(self,killer,killed,reason)
+	def getMask(self,client):
+		if type(client) == str:
+			client = self.find_user(client)
+		hostmask = client['nick']+"!"+client['user']+"@"+client['host']
+		return hostmask
 	#end of api
 	#start hooks
 	def getConnect(self,user):
