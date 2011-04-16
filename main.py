@@ -24,6 +24,7 @@ class asynchat_bot(asynchat.async_chat):
 		self.reportchannel = config.reportchannel
 		#end of stuff to be set on a rehash
 		self.servername = config.servername
+		self.serverdesc = config.serverdesc
 		self.mysid = config.sid
 		self.debugmode = debugmode
 		self.firstping = 1

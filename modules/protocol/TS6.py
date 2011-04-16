@@ -95,6 +95,13 @@ def handle_data(self,data): #start parsing
 	if split[1] == "VERSION" and split[2].replace(":","") == self.mysid:
 		uid = split[0].replace(":","")
 		self.sendLine(":"+self.mysid+" 351 "+uid+" "+self.getVersion())
+	elif split[1] == "WHOIS": #Incoming WHOIS for a pseudo-client.
+		cuid = split[0].strip(":")
+		uid = split[2]
+		self.sendLine(":"+self.mysid+" 311 "+cuid+" "+self.uidstore[uid]['nick']+" "+self.uidstore[uid]['user']+" "+self.uidstore[uid]['host']+" * :"+self.uidstore[uid]['gecos'])
+		self.sendLine(":"+self.mysid+" 312 "+cuid+" "+self.uidstore[uid]['nick']+" "+self.servername.replace("(H) ","")+" :"+self.serverdesc)
+		self.sendLine(":"+self.mysid+" 313 "+cuid+" "+self.uidstore[uid]['nick']+" :is a Network Service")
+		self.sendLine(":"+self.mysid+" 318 "+cuid+" "+self.uidstore[uid]['nick']+" :End of WHOIS")
 #end parsing
 #start functions
 def add_kline(self,kliner,time,user,host,reason):
