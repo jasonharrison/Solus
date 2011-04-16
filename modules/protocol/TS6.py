@@ -190,8 +190,6 @@ def partChannel(self,cuid,channel):
 	if channel in self.uidstore[cuid]['channels']:
 		self.sendLine(':'+cuid+' PART '+channel)
 		self.uidstore[cuid]['channels'].remove(channel)
-#def getMask(self,client): #should be done in main.py...
-#	return :001 CHGHOST 05CAAALTR test.
 def kill_user(self,killer,killed,reason):
 	if type(killed) == dict:
 			killed = killed['uid']
