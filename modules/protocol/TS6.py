@@ -153,21 +153,35 @@ def sendPrivmsg(self,sender,target,data):
 	else:
 		self.sendLine(":"+sender+" PRIVMSG "+target+" :"+data)
 def createClient(self,cnick,cuser,chost,cgecos):
-	self.baseuid+=1
-	cuid = str(self.mysid)+str(self.baseuid)
+	myuid = self.baseuid
+	if str(self.mysid)+str(myuid) in self.myclients:
+		i=0
+		while i == 0 and myuid != "99999":
+			myuid+=1
+			if str(self.mysid)+str(myuid) not in self.myclients:
+				cuid = str(self.mysid)+str(myuid)
+				self.myclients.append(cuid)
+				i=1
+	else:
+		cuid = str(self.mysid)+str(myuid)
+		self.myclients.append(cuid)
 	modes = "+ioS"
 	self.sendLine(':'+str(self.mysid)+' EUID '+cnick+' 0 '+str(time.time())+' '+modes+' '+cuser+' '+chost+' 0.0.0.0 '+cuid+' 0.0.0.0 0 :'+cgecos)
 	self.uidstore[cuid] = {'nick': cnick, 'user': cuser, 'host': chost, 'realhost': chost, 'account': "", 'oper': True, 'modes': modes, 'channels': [], 'gecos': cgecos, 'ip': "", 'server': self.mysid, 'uid': cuid}
-	self.myclients.append(cuid)
+	self.nickstore[cnick] = {'uid': cuid}
 	self.joinChannel(cuid,self.reportchannel)
 	self.sendLine("MODE "+self.reportchannel+" +o "+cuid)
 	return self.uidstore[cuid]
 def destroyClient(self,cuid,reason):
 	if type(cuid) == dict:
 		cuid = cuid['uid']
+		nick = cuid['nick']
+	else:
+		nick = self.uidstore[cuid]['nick']
 	self.sendLine(":"+cuid+" QUIT :"+reason)
 	self.myclients.remove(cuid)
 	del self.uidstore[cuid]
+	del self.nickstore[cnick]
 def joinChannel(self,cuid,channel):
 	if channel not in self.uidstore[cuid]['channels']:
 		self.sendLine(':'+cuid+' JOIN '+str(time.time())+' '+channel+' +')
