@@ -73,6 +73,16 @@ class asynchat_bot(asynchat.async_chat):
 		del self.modules[modname]
 	def modreload(self,modname):
 		reload(modname)
+	def modfullreload(self,modname):
+		self.modules[modname].moddeinit(self)
+		del self.modules[modname]
+		module = __import__(modname)
+		if "." in modname:
+			modparts = modname.split(".")[1:]
+			for part in modparts:
+				module = getattr(module, part)
+		module.modinit(self)
+		self.modules[modname] = module
 	def rehash(self):
 		#stuff to be set on a rehash
 		try:
@@ -119,6 +129,8 @@ class asynchat_bot(asynchat.async_chat):
 			return self.protocol.find_user(self,client)
 		elif type(client) == dict:
 			return client
+	def kill_user(self,killer,killed,reason):
+		self.protocol.kill_user(killer,killed,reason)
 	#end of api
 	#start hooks
 	def getConnect(self,user):

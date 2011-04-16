@@ -157,7 +157,9 @@ def createClient(self,cnick,cuser,chost,cgecos):
 	self.sendLine("MODE "+self.reportchannel+" +o "+cuid)
 	return self.uidstore[cuid]
 def destroyClient(self,cuid,reason):
-	self.sendLine(":"+str(cuid)+" QUIT :"+reason)
+	if type(cuid) == dict:
+		cuid = cuid['uid']
+	self.sendLine(":"+cuid+" QUIT :"+reason)
 	self.myclients.remove(cuid)
 	del self.uidstore[cuid]
 def joinChannel(self,cuid,channel):
@@ -168,4 +170,17 @@ def partChannel(self,cuid,channel):
 	if channel in self.uidstore[cuid]['channels']:
 		self.sendLine(':'+cuid+' PART '+channel)
 		self.uidstore[cuid]['channels'].remove(channel)
+def kill_user(self,killer,killed,reason):
+	if type(killed) == dict:
+			killed = killed['uid']
+	if type(killer) == dict:
+		killer = killer['uid']
+	cserver = self.servername
+	chost = self.uidstore[uid]['host']
+	cuser = self.uidstore[uid]['user']
+	cnick = self.uidstore[uid]['nick']
+	self.sendLine(":"+client+" KILL "+killed+" :"+cserver+"!"+chost+"!"+cuser+"!"+cnick+" ("+reason+")")
+	del self.nickstore[self.uidstore[uid]['nick']]
+	self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
+	del self.uidstore[uid]
 #end functions
