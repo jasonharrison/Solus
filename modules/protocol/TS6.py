@@ -176,11 +176,11 @@ def kill_user(self,killer,killed,reason):
 	if type(killer) == dict:
 		killer = killer['uid']
 	cserver = self.servername
-	chost = self.uidstore[uid]['host']
-	cuser = self.uidstore[uid]['user']
-	cnick = self.uidstore[uid]['nick']
-	self.sendLine(":"+client+" KILL "+killed+" :"+cserver+"!"+chost+"!"+cuser+"!"+cnick+" ("+reason+")")
-	del self.nickstore[self.uidstore[uid]['nick']]
-	self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
-	del self.uidstore[uid]
+	chost = self.uidstore[killed]['host']
+	cuser = self.uidstore[killed]['user']
+	cnick = self.uidstore[killed]['nick']
+	self.sendLine(":"+killer+" KILL "+killed+" :"+cserver+"!"+chost+"!"+cuser+"!"+cnick+" ("+reason+")")
+	del self.nickstore[self.uidstore[killed]['nick']]
+	self.serverstore[self.uidstore[killed]['server']]['users'].remove(killed)
+	del self.uidstore[killed]
 #end functions
