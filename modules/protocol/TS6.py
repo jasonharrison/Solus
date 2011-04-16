@@ -173,15 +173,12 @@ def createClient(self,cnick,cuser,chost,cgecos):
 	self.sendLine("MODE "+self.reportchannel+" +o "+cuid)
 	return self.uidstore[cuid]
 def destroyClient(self,cuid,reason):
-	if type(cuid) == dict:
-		cuid = cuid['uid']
-		nick = cuid['nick']
-	else:
-		nick = self.uidstore[cuid]['nick']
-	self.sendLine(":"+cuid+" QUIT :"+reason)
-	self.myclients.remove(cuid)
-	del self.uidstore[cuid]
-	del self.nickstore[cnick]
+	uid = cuid['uid']
+	nick = cuid['nick']
+	self.sendLine(":"+uid+" QUIT :"+reason)
+	self.myclients.remove(uid)
+	del self.uidstore[uid]
+	del self.nickstore[nick]
 def joinChannel(self,cuid,channel):
 	if channel not in self.uidstore[cuid]['channels']:
 		self.sendLine(':'+cuid+' JOIN '+str(time.time())+' '+channel+' +')
