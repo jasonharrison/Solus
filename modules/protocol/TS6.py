@@ -47,8 +47,11 @@ def handle_data(self,data): #start parsing
 		else: #not an oper
 			self.uidstore[uid] = {'nick': nick, 'user': user, 'host': host, 'realhost': realhost, 'account': account, 'oper': False, 'modes': modes, 'channels': [], 'gecos': gecos, 'ip': ip, 'server': server, 'uid': uid}
 		self.serverstore[server]['users'].append(uid)
+		self.getConnect(self.uidstore[uid])
 	elif split[1] == "QUIT":
 		uid = split[0].strip(":")
+		reason = data[data.find(' :')+2:]
+		self.getQuit(self.uidstore[uid],reason)
 		del self.nickstore[self.uidstore[uid]['nick']]
 		self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
 		del self.uidstore[uid]
@@ -87,6 +90,16 @@ def handle_data(self,data): #start parsing
 		self.uplinkservername = split[1]
 		self.uplinkserverdesc = ''.join(split[3:]).strip(":")
 		self.serverstore[self.uplinkSID] = {"servername": self.uplinkservername, "SID": self.uplinkSID, "serverdesc": self.uplinkserverdesc, "users": []}
+	elif split[1] == "ENCAP":
+		if split[3] == "SU":
+			uid = split[4].replace(":","")
+			try:	
+				newaccount = split[5].replace(":","")
+				self.uidstore[uid]['account'] = newaccount
+			except IndexError:
+				self.uidstore[uid]['account'] = ""
+		#{1302922054.7} Send: :010100001 NOTICE #solus :
+	#{1302922063.38} Recv: :10A ENCAP * SU 05CAAAISU :bikcmp
 	elif split[1] == "PRIVMSG":
 		messagedata = re.search("^:([0-9A-Z]{9}) PRIVMSG ([^ ]*) :(.*)$",data).groups()
 		uid = messagedata[0]

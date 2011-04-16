@@ -129,6 +129,14 @@ class asynchat_bot(asynchat.async_chat):
 			return client
 	#end of api
 	#start hooks
+	def getConnect(self,user):
+		for modname,module in self.modules.items():
+			if hasattr(module, "onConnect"):
+				module.onConnect(self,user)
+	def getQuit(self,user,reason):
+		for modname,module in self.modules.items():
+			if hasattr(module, "onQuit"):
+				module.onQuit(self,user,reason)
 	def getPrivmsg(self,user,target,message):
 		#WARNING: d-exec is ONLY FOR DEBUGGING AND CHECKING VARIABLES FOR DEVELOPMENT PURPOSES.  *DO NOT* use this in production.
 		if user['host'] not in self.ignored:
