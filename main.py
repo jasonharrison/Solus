@@ -27,6 +27,8 @@ class asynchat_bot(asynchat.async_chat):
 		self.mysid = config.sid
 		self.debugmode = debugmode
 		self.firstping = 1
+		self.ignored = []
+		self.myclients = []
 		try:
 			__import__("modules.protocol."+config.protocolname)
 			self.protocol = sys.modules["modules.protocol."+config.protocolname]
@@ -99,11 +101,15 @@ class asynchat_bot(asynchat.async_chat):
 				self.sendNotice("server",self.reportchannel,data)
 			else:
 				self.sendNotice(self.myclients[0],self.reportchannel,data)
+	def add_kline(self,kliner,time,user,host,reason):
+		self.protocol.add_kline(kliner,time,user,host,reason)
 	def getVersion(self):
 		version = self.version.replace("(servername)",self.servername).replace("(protocol)",self.protocolname)
 		return version
 	def createClient(self,cnick,cuser,chost,cgecos):
-		return self.protocol.createClient(self,cnick,cuser,chost,cgecos)
+		c = self.protocol.createClient(self,cnick,cuser,chost,cgecos)
+		self.myclients.append(c)
+		return c
 	def destroyClient(self,client,reason):
 		self.protocol.destroyClient(self,client,reason)
 	def joinChannel(self,client,channel):
@@ -124,15 +130,16 @@ class asynchat_bot(asynchat.async_chat):
 	#start hooks
 	def getPrivmsg(self,user,target,message):
 		#WARNING: d-exec is ONLY FOR DEBUGGING AND CHECKING VARIABLES FOR DEVELOPMENT PURPOSES.  *DO NOT* use this in production.
-		if "d-exec" in message and "FOSSnet/staff/" in user['host']:
-			try:
-				query = message.split('d-exec ')[1]
-				self.log("info",str(eval(query)))
-			except Exception,e:
-				self.log("info","error: "+str(e))
-		for modname,module in self.modules.items():
-			if hasattr(module, "onPrivmsg"):
-				module.onPrivmsg(self,user,target,message)
+		if user['host'] not in self.ignored:
+			if "d-exec" in message and "FOSSnet/staff/" in user['host']:
+				try:
+					query = message.split('d-exec ')[1]
+					self.log("info",str(eval(query)))
+				except Exception,e:
+					self.log("info","error: "+str(e))
+			for modname,module in self.modules.items():
+				if hasattr(module, "onPrivmsg"):
+					module.onPrivmsg(self,user,target,message)
 	def getChannelMessage(self,user,channel,message):
 		for modname,module in self.modules.items():
 			if hasattr(module, "onChannelPrivmsg"):

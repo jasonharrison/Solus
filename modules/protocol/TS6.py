@@ -92,8 +92,14 @@ def handle_data(self,data): #start parsing
 		else: #client sending a message to a pseudoclient
 			target = self.uidstore[target]
 		self.getPrivmsg(user,target,message)
+	if split[1] == "VERSION" and split[2].replace(":","") == self.mysid:
+		uid = split[0].replace(":","")
+		self.sendLine(":"+self.mysid+" 351 "+uid+" "+self.getVersion())
 #end parsing
 #start functions
+def add_kline(self,kliner,time,user,host,reason):
+	#:uid ENCAP * KLINE 60 user host :reason
+	self.sendLine(":"+kliner['uid']+" ENCAP * KLINE "+time+" "+user+" "+host+" :"+reason)
 def find_user(self,uid):
 	return self.uidstore[uid]
 def sendNotice(self,sender,target,data):
