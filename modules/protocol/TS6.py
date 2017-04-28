@@ -18,7 +18,6 @@ def handle_connect(self, config):
     self.sendLine("PASS " + str(config.remotepass) + " TS 6 " + str(config.sid))
     self.sendLine("CAPAB :QS EX IE KLN UNKLN ENCAP TB SERVICES EUID EOPMOD")
     self.sendLine("SERVER " + str(config.servername) + " 1 :" + str(config.serverdesc))
-    self.mainc = self.createClient("egon", "egon", "egon", "egon")  # for debugging with d-exec
 
 
 def handle_data(self, data):  # start parsing
@@ -29,7 +28,6 @@ def handle_data(self, data):  # start parsing
             endts = time.time()
             self.sendLine(
                 "WALLOPS :Synced with network in " + str(float(float(endts) - (float(self.startts))))[:4] + " seconds.")
-        # self.mainc = self.createClient("egon","egon","egon","egon") #for debugging with d-exec
         self.sendLine('PONG %s' % data[5:])
     elif split[1] == "EUID":
         modes = split[5].strip("+").strip("-")
@@ -67,13 +65,11 @@ def handle_data(self, data):  # start parsing
         del self.nickstore[self.uidstore[uid]['nick']]
         self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
         del self.uidstore[uid]
-    # {1302921049.54} Recv: :05CAAAISU KILL 02KAAABD0 :s4.FOSSnet.info!FOSSnet/staff/bikcmp!jason!bikcmp (<No reason given>)
     elif split[1] == "KILL":
         uid = split[2]
         del self.nickstore[self.uidstore[uid]['nick']]
         self.serverstore[self.uidstore[uid]['server']]['users'].remove(uid)
         del self.uidstore[uid]
-    #:02KAAACJL NICK jg :1302376060
     elif split[1] == "NICK":
         uid = split[0].strip(":")
         newnick = split[2]
@@ -90,14 +86,12 @@ def handle_data(self, data):  # start parsing
             del self.uidstore[uid]
         del self.serverstore[sid]
     elif split[1] == "SID":  # add uplink to serverstore
-        #:42A SID s1.FOSSnet.info 3 11A :Atlanta, Georgia, USA
-        # time.sleep(5)
         serverSID = split[4]
         desc = ''.join(str(split[5:]).strip(str(split[5:])[0]))
         servername = split[2]
         self.serverstore[serverSID] = {"name": servername, "SID": serverSID, "desc": desc, "users": []}
     # an ugly hack lies ahead.
-    elif split[0] == "PASS":  # getting local sid, ugly hack.
+    elif split[0] == "PASS":  # getting local sid
         self.uplinkSID = split[4].strip(":")
     elif split[0] == "SERVER":
         self.uplinkservername = split[1]
@@ -112,7 +106,7 @@ def handle_data(self, data):  # start parsing
                 self.uidstore[uid]['account'] = newaccount
             except IndexError:
                 self.uidstore[uid]['account'] = ""
-            # {1302922054.7} Send: :010100001 NOTICE #solus :
+                # {1302922054.7} Send: :010100001 NOTICE #solus :
     # {1302922063.38} Recv: :10A ENCAP * SU 05CAAAISU :bikcmp
     elif split[1] == "PRIVMSG":
         messagedata = re.search("^:([0-9A-Z]{9}) PRIVMSG ([^ ]*) :(.*)$", data).groups()
@@ -237,5 +231,3 @@ def kill_user(self, killer, killed, reason):
     del self.nickstore[self.uidstore[killed]['nick']]
     self.serverstore[self.uidstore[killed]['server']]['users'].remove(killed)
     del self.uidstore[killed]
-
-# end functions
