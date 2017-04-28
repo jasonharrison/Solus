@@ -1,12 +1,9 @@
-#my settings:
-servername = "ray."
-serverdesc = "<JStoker> oh god."
+servername = "syn."
+serverdesc = "syn"
 protocolname = "TS6" #choices: TS6 - CASE SENSITIVE.
 loglevel = "info verbose network" #seperate by spaces, options:  network, info, commands, error, verbose
 reportchannel = "#services"
-#for protocols that use sid's:
 sid = "58X"
-#remote settings:
 remotehost = "127.0.0.1"
 remoteport = 6667
 remotepass = "secret"
