@@ -1,4 +1,4 @@
-import asynchat, asyncore, socket, sys, os, time
+import asynchat, asyncore, socket, sys, os, time, subprocess
 
 try:
     import config
@@ -16,8 +16,8 @@ class asynchat_bot(asynchat.async_chat):
         self.remote = (host, port)
         self.connect(self.remote)
         # set vars
-        self.versionnumber = 0.01
-        self.version = "Solus " + str(self.versionnumber) + ". (servername) [(protocol)]"
+        self.label = subprocess.check_output(["git", "describe"]) # get current git hash
+        self.version = "Solus " + str(self.label) + ".  "
         self.modules = {}
         # stuff to be set on a rehash
         self.remotehost = config.remotehost
@@ -43,7 +43,7 @@ class asynchat_bot(asynchat.async_chat):
 
     # api
     def sendLine(self, data):
-        if self.debugmode == 1:
+        if self.debugmode:
             print("{" + str(time.time()) + "} Send: " + data)
         self.push(data + "\r\n")
 
@@ -110,7 +110,7 @@ class asynchat_bot(asynchat.async_chat):
         self.protocol.add_kline(kliner, time, user, host, reason)
 
     def getVersion(self):
-        version = self.version.replace("(servername)", self.servername).replace("(protocol)", self.protocolname)
+        version = self.version + self.servername+" "+self.protocolname
         return version
 
     def createClient(self, cnick, cuser, chost, cgecos):
@@ -195,19 +195,18 @@ class asynchat_bot(asynchat.async_chat):
 
     def found_terminator(self):
         data = self.get_data()
-        if self.debugmode == 1:
+        if self.debugmode:
             print("{" + str(time.time()) + "} Recv: " + data)
         self.protocol.handle_data(self, data)
 
 
 if __name__ == '__main__':
-    debugmode = 0
+    debugmode = False
     for arg in sys.argv[1:]:
         if " " not in arg and "python" not in arg and "main.py" not in arg:
             if arg == "-d":
-                debugmode = 1
-                print
-                "Starting in debug mode."
+                debugmode = True
+                print "Starting in debug mode."
             else:
                 print
                 "Unknown argument: " + arg + " - ignoring"

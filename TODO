@@ -1,7 +1,6 @@
 X = done, ? = Needs discussion, / = in progress, nothing = not started.
 
-[?] Write config parser (ConfigParser?)
-[ ] Reload from IRC, without errors in config causing services to crash.
+[X] Reload from IRC, without errors in config causing services to crash.
 [/] Uplink
     [X] Write socket code to use asyncore, or some other similar event based library.
     [?] Multiple uplink support
@@ -10,22 +9,22 @@ X = done, ? = Needs discussion, / = in progress, nothing = not started.
 [X] Keep user data in a dict or sqlite database (:memory:?) (DICT used.)
 [/] Easy to use/rich API
 [X] Extremely modular base
-    [ ] Hooks?
-    [ ] Reloading modules through IRC
+    [X] Hooks?
+    [X] Reloading modules through IRC
     [/] Multiple protocols (See below)
 [/] Multiple protocol support
 	Protocols/Maintainers/Tasks:
 		TS6:
 			[X] End of burst detection
 			[X] Rezzing clients
-			[ ] Deleting clients on quits
-			[ ] SJOIN/JOIN handing and chanstore{}
-			[ ] netsplit/netjoins (adding/removing users)
-			[?] netsplit/netjoins (adding/removing channels)
+			[X] Deleting clients on quits
+			[X] SJOIN/JOIN handing and chanstore{}
+			[X] netsplit/netjoins (adding/removing users)
+			[X] netsplit/netjoins (adding/removing channels)
 [ ] Event system
     [ ] Once
     [ ] Recurring
-[ ] Database backend
+[?] Database backend
     [?] Open Services Exchange database format
 [ ] Account management
     [ ] Accounts
