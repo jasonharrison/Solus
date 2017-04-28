@@ -30,7 +30,7 @@ class asynchat_bot(asynchat.async_chat):
         self.serverdesc = config.serverdesc
         self.mysid = config.sid
         self.debugmode = debugmode
-        self.firstping = 1
+        self.firstping = True
         self.ignored = []
         self.myclients = []
         try:
