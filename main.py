@@ -47,12 +47,6 @@ class asynchat_bot(asynchat.async_chat):
             print("{" + str(time.time()) + "} Send: " + data)
         self.push(data + "\r\n")
 
-    # def load(self,modtoload):
-    #	modname = "modules.services."+modtoload
-    #	self.m = __import__(modname)
-    #	module.modinit(self)
-    #	return module
-    # altara's load() and unload()
     def modexists(module, modname):
         modparts = modname.split(".")
         modparts.pop(0)
@@ -88,7 +82,6 @@ class asynchat_bot(asynchat.async_chat):
         self.modules[modname].modinit(self)
 
     def rehash(self):
-        # stuff to be set on a rehash
         try:
             reload(config)
             self.remotehost = config.remotehost
@@ -157,7 +150,7 @@ class asynchat_bot(asynchat.async_chat):
         return hostmask
 
     # end of api
-    # start hooks
+    # begin hooks
     def getConnect(self, user):
         for modname, module in self.modules.items():
             if hasattr(module, "onConnect"):
@@ -169,17 +162,9 @@ class asynchat_bot(asynchat.async_chat):
                 module.onQuit(self, user, reason)
 
     def getPrivmsg(self, user, target, message):
-        # WARNING: d-exec is ONLY FOR DEBUGGING AND CHECKING VARIABLES FOR DEVELOPMENT PURPOSES.  *DO NOT* use this in production.
-        if user['host'] not in self.ignored:
-            if "d-exec" in message and "FOSSnet/staff/" in user['host']:
-                try:
-                    query = message.split('d-exec ')[1]
-                    self.log("info", str(eval(query)))
-                except Exception, e:
-                    self.log("info", "error: " + str(e))
-            for modname, module in self.modules.items():
-                if hasattr(module, "onPrivmsg"):
-                    module.onPrivmsg(self, user, target, message)
+        for modname, module in self.modules.items():
+            if hasattr(module, "onPrivmsg"):
+                module.onPrivmsg(self, user, target, message)
 
     def getChannelMessage(self, user, channel, message):
         for modname, module in self.modules.items():

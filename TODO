@@ -15,7 +15,7 @@ X = done, ? = Needs discussion, / = in progress, nothing = not started.
     [/] Multiple protocols (See below)
 [/] Multiple protocol support
 	Protocols/Maintainers/Tasks:
-		bikcmp/TS6:
+		TS6:
 			[X] End of burst detection
 			[X] Rezzing clients
 			[ ] Deleting clients on quits
